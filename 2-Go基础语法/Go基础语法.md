@@ -1,4 +1,4 @@
-# 关键字、标识符、注释，基础结构
+关键字、标识符、注释，基础结构
 
 ## GO中保留关键字只有25个
 
@@ -170,6 +170,16 @@ import ("fmt"; "os")
 
 当你导入多个包时，导入的顺序会按照字母排序。
 
+
+
+## import别名，"."，"_"
+
+- 别名操作的含义是：将导入的包命名为另一个容易记忆的别名
+- 点（.）操作的含义是：点（.）标识符的包被导入后，调用该包中函数时可以省略前缀包名
+- 下划线`（_）`操作的含义是：导入该包，但是不导入整个包，而是执行该包的init()函数，一次无法通过包名来调用包中的其他函数。使用下划线 `（_）`操作往往是为了注册包里的引擎，让外部可以方便的使用
+
+
+
 如果包名不是以 . 或 / 开头，如 "fmt" 或者 "container/list"，则 Go 会在全局文件进行查找；如果包名以 ./ 开头，则 Go 会在相对目录中查找；如果包名以 / 开头（在 Windows 下也可以这样使用），则会在系统的绝对路径中查找。
 
 导入包即等同于包含了这个包的所有的代码对象。
@@ -213,14 +223,117 @@ func main() {
 
 你可以在使用 import 导入包之后定义或声明 0 个或多个常量（const）、变量（var）和类型（type），这些对象的作用域都是全局的（在本包范围内），所以可以被本包中所有的函数调用（如 gotemplate.go 源文件中的 c 和 v），然后声明一个或多个函数（func）。
 
-
-
-
-
-
 # Go变量，函数，可见性规则
 
+## GO语言数值类型，字符串类型和布尔型
+
+- 数据类型的出现时为了把数据分成所需内存大小不同的数据，编程的时候需要用到大数据的时候才需要申请大内存，就可以充分利用内存
+- 布尔型的值只可以是常量true或者false，一个简单的例子 var a bool = true
+- 字符串类型，string，编码统一为 utf-8
 
 
 
+![img](https://img2018.cnblogs.com/blog/720430/201810/720430-20181026095557581-1443352750.png)
+
+| 类型(整形)           | 描述                                                         |
+| :------------------- | :----------------------------------------------------------- |
+| uint                 | 32位或64位                                                   |
+| uint8                | 无符号 8 位整型 (0 到 255)                                   |
+| uint16               | 无符号 16 位整型 (0 到 65535)                                |
+| uint32               | 无符号 32 位整型 (0 到 4294967295)                           |
+| uint64               | 无符号 64 位整型 (0 到 18446744073709551615)                 |
+| int                  | 32位或64位                                                   |
+| int8                 | 有符号 8 位整型 (-128 到 127)                                |
+| int16                | 有符号 16 位整型 (-32768 到 32767)                           |
+| int32                | 有符号 32 位整型 (-2147483648 到 2147483647)                 |
+| int64                | 有符号 64 位整型 (-9223372036854775808 到 9223372036854775807) |
+| **其他数值类型**     | **描述**                                                     |
+| byte                 | uint8的别名(type byte = uint8)                               |
+| rune                 | int32的别名(type rune = int32)，表示一个unicode码            |
+| uintptr              | 无符号整型，用于存放一个指针是一种无符号的整数类型，没有指定具体的bit大小但是足以容纳指针。 uintptr类型只有在底层编程是才需要，特别是Go语言和C语言函数库或操作系统接口相交互的地方。 |
+| **浮点型和复数类型** | **描述**                                                     |
+| float32              | IEEE-754 32位浮点型数                                        |
+| float64              | IEEE-754 64位浮点型数                                        |
+| complex64            | 32 位实数和虚数                                              |
+| complex128           | 64 位实数和虚数                                              |
+
+int和uint这种后面不带位数标识的数据类型，会根据你的操作系统的实际情况来决定是int32（4字节）或者int64（8字节）。它是能够动态改变的
+
+```go
+package main
+
+import (
+	"fmt"
+	"unsafe"
+)
+
+func main() {
+	var a uint = 1
+	var b uint8 = 1
+	var c uint16 = 1
+	var d uint32 = 1
+	var e uint64 = 1
+	var f int = 1
+	var g int8 = 1
+	var h int16 = 1
+	var i int32 = 1
+	var j int64 = 1
+	var k float32 = 1.1
+	var m float64 = 1.1
+	var n bool = true
+	var p byte = 1
+	var u uintptr = 0
+
+	fmt.Printf("uint--->%d\n", unsafe.Sizeof(a))
+	fmt.Printf("uint8--->%d\n", unsafe.Sizeof(b))
+	fmt.Printf("uint16--->%d\n", unsafe.Sizeof(c))
+	fmt.Printf("uint32--->%d\n", unsafe.Sizeof(d))
+	fmt.Printf("uint64--->%d\n", unsafe.Sizeof(e))
+	fmt.Printf("int--->%d\n", unsafe.Sizeof(f))
+	fmt.Printf("int8--->%d\n", unsafe.Sizeof(g))
+	fmt.Printf("int16--->%d\n", unsafe.Sizeof(h))
+	fmt.Printf("int32--->%d\n", unsafe.Sizeof(i))
+	fmt.Printf("int64--->%d\n", unsafe.Sizeof(j))
+	fmt.Printf("float32--->%d\n", unsafe.Sizeof(k))
+	fmt.Printf("float64--->%d\n", unsafe.Sizeof(m))
+	fmt.Printf("bool--->%d\n", unsafe.Sizeof(n))
+	fmt.Printf("byte--->%d\n", unsafe.Sizeof(p))
+	fmt.Printf("uintptr--->%d\n", unsafe.Sizeof(u))
+}
+
+```
+
+在64位机器下，整形数据的内存占用情况如下(指针在32位机器下是4字节，64位机器下是8字节) 1字节等于8位
+
+> - uint--->8
+> - uint8--->1  
+> - uint16--->2 
+> - uint32--->4 
+> - uint64--->8 
+> - int--->8    
+> - int8--->1   
+> - int16--->2  
+> - int32--->4  
+> - int64--->8  
+> - float32--->4
+> - float64--->8
+> - bool--->1   
+> - byte--->1   
+> - uintptr--->8
+
+## 派生类型
+
+- 指针类型（Pointer）
+- 数组类型
+- 结构化类型（struct）
+- Channel类型，管道类型（chan)
+- 函数类型（func）
+- 切片类型（slice）
+- 接口类型（interface）
+- Map类型（map）
+
+## 类型零值和类型别名
+
+- 类型零值不是空值，而是某个变量被声明后的默认值，一般情况下，值类型的默认值是0，布尔类型默认值为false，string默认值为空字符串
+- GO可以对类型设置别名
 
